@@ -163,14 +163,22 @@ if [[ $(get_config ONVIF) == "yes" ]] ; then
 fi
 
 FREE_SPACE=$(get_config FREE_SPACE)
+FTP_UPLOAD=$(get_config FTP_UPLOAD)
+
+if [[ $FREE_SPACE != "0" || $FTP_UPLOAD == "yes" ]] ; then
+  mkdir -p /var/spool/cron/crontabs/
+fi
+
 if [[ $FREE_SPACE != "0" ]] ; then
-    mkdir -p /var/spool/cron/crontabs/
     echo "  0  *  *  *  *  /mnt/mmc/sonoff-hack/script/clean_records.sh $FREE_SPACE" > /var/spool/cron/crontabs/root
-    /usr/sbin/crond -c /var/spool/cron/crontabs/
 fi
 
 if [[ $(get_config FTP_UPLOAD) == "yes" ]] ; then
-    /mnt/mmc/sonoff-hack/script/ftppush.sh start &
+   echo "  *  *  *  *  *  flock -n /mnt/mmc/sonoff-hack/ftpupload.lock /mnt/mmc/sonoff-hack/script/ftppush-v2.sh" > /var/spool/cron/crontabs/root
+fi
+
+if [[ $FREE_SPACE != "0" || $FTP_UPLOAD == "yes" ]] ; then
+  /usr/sbin/crond -c /var/spool/cron/crontabs/
 fi
 
 if [ -f "/mnt/mmc/startup.sh" ]; then

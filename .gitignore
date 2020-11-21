@@ -12,3 +12,4 @@ INIT_SUBMODULES.md
 *.DS_Store
 *.o
 .idea
+.vscode/c_cpp_properties.json
